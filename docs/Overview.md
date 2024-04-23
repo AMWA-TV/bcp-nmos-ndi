@@ -8,7 +8,7 @@ _(c) AMWA 2023, CC Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)_
 
 ## Introduction
 
-NDI (Network Display Interface) is an IP transport and control technology created by Newtek, a division of Vizrt Group. It includes definitions of encoding, transport and provides a full SDK to implement IP media transport. This document outlines how NDI devices can be managed through NMOS IS-04 and IS-05.
+NDI (Network Display Interface) is an IP transport and control technology created by Newtek. NDI® is a registered trademark of Vizrt NDI AB. It includes definitions of encoding, transport and provides a full SDK to implement IP media transport. This document outlines how NDI devices can be managed through NMOS IS-04 and IS-05.
 
 Familiarity with the [JT-NM Reference Architecture](https://jt-nm.org/reference-architecture/) and the [NDI® SDK](https://ndi.video/sdk/) are assumed.
 
@@ -73,9 +73,9 @@ An NMOS Sender which implements the NDI transport.
 
 An NMOS Receiver which implements the NDI transport.
 
-### NDI Full Bandwidth
+### NDI High Bandwidth
 
-An NDI stream which utilizes proprietary codecs for audio and video. NDI Full Bandwidth is supported by both the NDI Standard SDK and NDI Advanced SDK.
+An NDI stream which utilizes proprietary codecs for audio and video. NDI High Bandwidth is supported by both the NDI Standard SDK and NDI Advanced SDK.
 
 ### NDI HX, NDI HX2, NDI HX3
 
@@ -89,7 +89,7 @@ NDI High Efficiency profiles, named **NDI HX**, **NDI HX2**, and **NDI HX3**, ut
 
 ### NDI
 
-This document uses the term "NDI" when referring to all NDI variants, and specify "NDI Full Bandwidth", "NDI HX", "NDI HX2", or "NDI HX3" where the text applies to specific NDI variants.
+This document uses the term "NDI" when referring to all NDI variants, and specify "NDI High Bandwidth", "NDI HX", "NDI HX2", or "NDI HX3" where the text applies to specific NDI variants.
 
 ## Native NDI Model
 
@@ -133,7 +133,7 @@ The mux Flow MUST have parent video and/or audio sub-Flows identifying the sub-F
 
 #### Video sub-Flows
 
-For NDI Full Bandwidth the video sub-Flows `media_type` attribute MUST be `video/raw`.
+For NDI High Bandwidth the video sub-Flows `media_type` attribute MUST be `video/raw`.
 
 For NDI HX, HX2 and HX3 the video sub-Flows `media_type` attribute MUST be `video/H264` or `video/H265`.
 
@@ -143,7 +143,7 @@ NDI video+alpha video flows MUST be modeled as a single video sub-Flow, includin
 
 #### Audio sub-Flows
 
-For NDI Full Bandwidth the audio sub-Flows `media_type` SHOULD be a supported PCM type such as `audio/L16`, `audio/L20`, or `audio/L24`.
+For NDI High Bandwidth the audio sub-Flows `media_type` SHOULD be a supported PCM type such as `audio/L16`, `audio/L20`, or `audio/L24`.
 
 For NDI HX, HX2 and HX3 the audio sub-Flows `media_type` attribute MUST be `audio/mpeg4-generic` or `audio/opus`.
 
@@ -158,6 +158,18 @@ NDI Senders do not utilize SDP to describe the NDI Stream; therefore NDI Senders
 NDI Senders MUST have their `transport` attribute set to `urn:x-nmos:transport:ndi`.
 
 NDI Senders MUST be associated with a mux Flow.
+
+#### NDI Group Tags
+
+NDI Senders MUST specify the NDI groups, through use of tags. NDI group tag MUST use the URN `urn:x-nmos:tag:transport:ndi:group`. The NDI group tag could have multiple values to represent multiple NDI groups, for example:
+```json
+"tags": {
+   "urn:x-nmos:tag:transport:ndi:group": [
+      "Cameras",
+      "Studio-A"
+   ]
+}
+```
 
 ### Receivers
 
@@ -174,8 +186,6 @@ An NDI Receiver MUST specify as a minimum the following capabilities:
     ]
 }
 ```
-
-Additional capabilities MAY be expressed in the `constraint_sets` array attribute of the Receiver for the stream of media type `application/ndi` and for the associated sub-streams.
 
 ## NDI IS-05 Resources
 
@@ -194,27 +204,43 @@ The IS-05 schemas `sender_transport_params_ndi.json` and `constraints_schema_sen
 ```json
 [
   {
-    "server_ip": "10.10.10.10",
-    "server_port": 5960,
+    "machine_name": "ndi-machine-name",
     "source_name": "ndi-sender-unique-name",
-    "group_name": "camera1"
+    "source_url" : "...",
+    "source_ip" : "10.10.10.123",
+    "source_port" : "5906"
   }
 ]
 ```
 
-**server_ip**:
-IP address hosting the NDI server (IP address of interface bound to the server). If the parameter is set to auto the Sender MUST establish for itself which interface it can use, based on its own internal configuration. A `null` value indicates that the Sender has not yet been configured.
+NDI Senders MUST specify `machine_name` and `source_name` in the Sender `transport_params`. Senders MAY also specify `source_url`, `source_ip` and `source_port`.
 
-**server_port**: 
-Port for the NDI server. If the parameter is set to `auto` the Sender MUST establish for itself which port it can use, based on its own internal configuration.
+#### machine_name
+The device name of the Native NDI Sender as utilized by the NDI SDK. The Sender MUST specify the `machine_name`. Senders MUST constrain this parameter with appropriate values.  Controllers updating this parameter MUST specify a `machine_name` which is in the Sender contraints or `auto` to allow the Sender to determine the `machine_name`.  
 
-**source_name**:
-The name of the NDI stream as declared by the NDI Sender.
+> Informative note: If a Sender does not wish a controller to change the `machine_name`, the constraint set would contain the current NDI device name and `auto` only.
 
-**group_name**: 
-The NDI group of the source. `null` indicates the default group.
+#### source_name
+The name of the Native NDI Sender stream in the NDI domain. This property MUST NOT be concatenated with `machine_name` in the format `machine_name (source_name)`. The Sender MUST specify the `source_name`. 
 
-Although the NDI Advanced SDK does allow NDI Native Devices to specify additional Sender transport parameters, these parameters and properties SHOULD NOT be exposed in NMOS.
+A controller MAY modify this parameter within the supported constraints of the Sender.
+
+> Informative note: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent.
+
+#### source_url 
+The URL of the Native NDI Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and SHOULD NOT be interpreted. If unspecified, it MUST be set to `null`. Senders MUST constrain this parameter with appropriate values.
+
+Controllers updating this parameter MUST specify a `source_url` which is in the Sender contraints or `auto` to allow the Sender to determine the `source_url`.  
+
+#### source_ip
+The IP address that the sender is utilizing for the stream. If a sender or controller specifies the `source_ip` it MUST also specify `source_port`.
+
+Controllers updating this parameter MUST specify a `source_ip` which is in the Sender contraints or `auto` to allow the Sender to determine the `source_ip`.
+
+### source_port
+The port number that the sender is utilizing for the stream. If a sender or controller specifies the `source_port` it MUST also specify `source_ip`.
+
+Controllers updating this parameter MUST specify a `source_port` which is in the Sender contraints or `auto` to allow the Sender to determine the `source_port`.
 
 ### Receiver Parameters
 
@@ -223,31 +249,47 @@ The IS-05 schemas `receiver_transport_params_ndi.json` and `constraints_schema_r
 ```json
 [
   {
-    "interface_ip": "10.10.10.20",
-    "server_host": "10.10.10.10",
-    "server_port": 5960,
+    "machine_name": "ndi-machine-name",
     "source_name": "ndi-sender-unique-name",
-    "group_name": "camera1"
+    "source_url" : "...",
+    "source_ip" : "10.10.10.123",
+    "source_port" : "5906",
+    "interface_ip" : "10.10.10.2"
   }
 ]
 ```
+NDI Receivers MUST support `machine_name` and `source_name` in the Receiver `transport_params`. Receivers MAY also support `source_url`, `source_ip` , `source_port` and `interface_ip`.
 
-**interface_ip**: 
-IP address of the network interface the receiver MUST use. If set to `auto` the receiver MUST determine which interface to use.
+#### machine_name
+The device name of the Native NDI Sender that is to be connected, as utilized by the NDI SDK. 
 
-**server_host**: 
-Hostname or IP hosting the NDI server. A `null` value indicates that the Receiver has not yet been configured.
+A controller MUST specify `machine_name` when making a connection.
 
-**server_port**: 
-Port for the NDI server. If set to `auto` the receiver MUST determine which port to use.
+#### source_name
+The name of the Native NDI Sender stream in the NDI domain that is to be connected. This property MUST NOT be concatenated with `machine_name` in the format `machine_name (source_name)`. 
 
-**source_name**: 
-The name of the NDI stream as declared by the NDI sender.
+A controller MUST specify `source_name` when making a connection.
 
-**group_name**: 
-The NDI group of the source, `null` indicates the default group.
+> Informative notes: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent. 
 
-Although the NDI Advanced SDK does allow NDI Native Devices to specify additional Receiver transport parameters, these parameters and properties SHOULD NOT be exposed in NMOS.
+#### source_url 
+The URL of the NDI Native Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and SHOULD NOT be interpreted. 
+
+If supported by the Receiver, a controller MAY specify `source_url` when making a connection if it is known, otherwise the controller MUST set it to `null`.
+
+#### source_ip
+The IP address that the sender is utilizing for the stream. If a receiver or controller specifies the `source_ip` it MUST also specify `source_port`.
+
+If supported by the Receiver, a controller SHOULD specify `source_ip` when making a connection if it is known, otherwise the controller MUST set it to `null`.
+
+### source_port
+The port number that the sender is utilizing for the stream. If a receiver or controller specifies the `source_port` it MUST also specify `source_ip`.
+
+If supported by the Receiver, a controller SHOULD specify `source_port` when making a connection if it is known, otherwise the controller MUST set it to `null`.
+
+### interface_ip
+IP address of the network interface the receiver SHOULD use. The receiver SHOULD provide an enum in the constraints endpoint, which contain the available interface addresses. If set to `auto` the receiver MUST determine which interface to use for itself.
+
 
 ## Controllers
 
