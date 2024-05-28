@@ -21,7 +21,7 @@ and "OPTIONAL" in this document are to be interpreted as described in [RFC-2119]
 
 ## Dependencies
 
-This document was written based upon [NDI® Advanced SDK Version 5.5](https://ndi.video/sdk/), however devices which implement other versions of the SDK MAY also be supported.
+This document was written based upon [NDI® Advanced SDK Version 5.5](https://ndi.video/sdk/), however devices which implement other versions of the SDK could also be supported.
 
 This document depends upon the following reference documents:
 
@@ -43,7 +43,7 @@ The NDI Software Development Kit (SDK) is offered in two variants. The base vers
 
 ### Native NDI Device
 
-A “device” as defined in the NDI SDK. This is not the same as a “Device” as defined in the NMOS Glossary. Note that the same physical or logical apparatus MAY simultaneously act as an NMOS Device and a Native NDI Device.
+A “device” as defined in the NDI SDK. This is not the same as a “Device” as defined in the NMOS Glossary. Note that the same apparatus could simultaneously act as an NMOS Device and a Native NDI Device.
 
 ### Non-NMOS NDI Device
 
@@ -55,11 +55,11 @@ A "stream" as defined in the NDI SDK. An NDI Stream is a multiplexed structure t
 
 ### Native NDI Sender
 
-A "sender" of an NDI stream as defined in the NDI SDK. This is not the same as a “Sender” as defined in the NMOS Glossary. Note that the same physical or logical apparatus MAY simultaneously act as an NMOS Sender and a Native NDI Sender.
+A "sender" of an NDI stream as defined in the NDI SDK. This is not the same as a “Sender” as defined in the NMOS Glossary. Note that the same apparatus could simultaneously act as an NMOS Sender and a Native NDI Sender.
 
 ### Native NDI Receiver
 
-A "receiver" of an NDI stream as defined in the NDI SDK. This is not the same as a “Receiver” as defined in the NMOS Glossary. Note that the same physical or logical apparatus MAY simultaneously act as an NMOS Receiver and a Native NDI Receiver.
+A "receiver" of an NDI stream as defined in the NDI SDK. This is not the same as a “Receiver” as defined in the NMOS Glossary. Note that the same apparatus could simultaneously act as an NMOS Receiver and a Native NDI Receiver.
 
 ### NDI Device
 
@@ -101,7 +101,7 @@ The NDI Advanced SDK supports compressed NDI Streams utilizing H.264, H.265, AAC
 
 ### NDI Metadata
 
-Metadata connections can be implicitly established by the NDI SDK when video connections are established. In some cases, bi-directional metadata connections can be established by the NDI SDK between the Native NDI Sender and Native NDI Receiver. In such cases, NDI Metadata MAY NOT be represented explicitly in NMOS.
+Metadata connections can be implicitly established by the NDI SDK when video connections are established. In some cases, bi-directional metadata connections can be established by the NDI SDK between the Native NDI Sender and Native NDI Receiver. In such cases, NDI Metadata is not represented explicitly in NMOS.
 
 ## NMOS-NDI Model
 
@@ -111,13 +111,13 @@ A controller which supports NDI connection management via IS-05 MUST support con
 
 ### Non-NMOS Connections to NDI Devices
 
-NDI Receivers MUST NOT preclude connections established with Native NDI Senders via the NDI SDK. If an NDI Stream is connected to an NDI Receiver outside of IS-05, the transport parameters of the Connection API of the Receiver MUST be updated to reflect the running parameters which have been set via the alternate protocol. The Receiver MUST update its IS-04 resource `subscription.active` property accordingly, set `subscription.sender_id` to `null` and increment it's version number. If the resource has been registered with an NMOS registry the entry MUST be updated to match the Node API.
+If an NDI Stream is connected to an NDI Receiver outside of IS-05, the transport parameters of the Connection API of the Receiver MUST be updated to reflect the running parameters which have been set via the alternate protocol. The Receiver MUST update its IS-04 resource `subscription.active` property accordingly, set `subscription.sender_id` to `null` and increment it's version number. If the resource has been registered with an NMOS registry the entry MUST be updated to match the Node API.
 
 ### Multiplexed Flow Model
 
 Receivers of NDI Streams MUST have the `format` attribute set to `urn:x-nmos:format:mux` and Senders of NDI Streams MUST be associated with a Flow having the `format` attribute set to `urn:x-nmos:format:mux`, as NDI connections could contain multiple essences including video, audio and metadata.
 
-A Flow of `urn:x-nmos:format:mux` format MUST have parents video or audio sub-Flows. The current NDI SDK limits to a maximum of one of each video, audio and metadata sub-Flow, but this specification supports future SDK versions which MAY support multiple audio, video or metadata sub-Flows.
+A Flow of `urn:x-nmos:format:mux` format MUST have parents video or audio sub-Flows. The current NDI SDK limits to a maximum of one of each video, audio and metadata sub-Flow, but this specification supports future SDK versions which could support multiple audio, video or metadata sub-Flows.
 
 ![MUX Sender Model](images/NMOS-NDI-Mux-sender-drawio.svg)
 
@@ -228,7 +228,7 @@ A controller MAY modify this parameter within the supported constraints of the S
 > Informative note: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent.
 
 #### source_url 
-The URL of the Native NDI Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and SHOULD NOT be interpreted. If unspecified, it MUST be set to `null`. Senders MUST constrain this parameter with appropriate values.
+The URL of the Native NDI Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and interpretation is not recommended. If unspecified, it MUST be set to `null`. Senders MUST constrain this parameter with appropriate values.
 
 Controllers updating this parameter MUST specify a `source_url` which is in the Sender contraints or `auto` to allow the Sender to determine the `source_url`.  
 
