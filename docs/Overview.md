@@ -225,7 +225,7 @@ The name of the Native NDI Sender stream in the NDI domain. This property MUST N
 
 A controller MAY modify this parameter within the supported constraints of the Sender.
 
-> Informative note: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent.
+> Informative note: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent. Certain characters are not supported by the NDI SDK. A device can place constraints to restrict the use of specific characters.
 
 #### source_url 
 The URL of the Native NDI Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and interpretation is not recommended. If unspecified, it MUST be set to `null`. Senders MUST constrain this parameter with appropriate values.
@@ -270,7 +270,7 @@ The name of the Native NDI Sender stream in the NDI domain that is to be connect
 
 A controller MUST specify `source_name` when making a connection.
 
-> Informative notes: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent. 
+> Informative notes: In the NDI domain, the `source_name` and `machine_name` are concatenated in the format `machine_name (source_name)` when streams are discovered and connected, however in the `transport_params`, these properties are kept independent. Certain characters are not supported by the NDI SDK. A device can place constraints to restrict the use of specific characters.
 
 #### source_url 
 The URL of the NDI Native Sender as utilized by the NDI SDK. The contents are proprietary to the NDI SDK and SHOULD NOT be interpreted. 
